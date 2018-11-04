@@ -1,0 +1,19 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "Just an example",
+  "private": true,
+  "scripts": {
+    "build": "webpack && cd dist && python -m SimpleHTTPServer 8000"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "planck-js": "^0.2.7",
+    "stage-js": "^0.8.10"
+  },
+  "devDependencies": {
+    "webpack": "^4.24.0",
+    "webpack-cli": "^3.1.2"
+  }
+}
