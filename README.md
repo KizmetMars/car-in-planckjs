@@ -1,6 +1,12 @@
 # Car game in planckjs
 
-## Setup
+## How to run
+```
+git clone git@github.com:KizmetMars/car-in-planckjs.git
+npm run build
+```
+
+## Setup a repo
 
 ### Create a project direcory
 ```
