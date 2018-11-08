@@ -48,17 +48,17 @@ planck.testbed('Car', function(testbed) {
 
   ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 
-  x += 80.0;
+  x += 120.0;
   ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 
   x += 40.0;
   ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 10.0, 5.0)), groundFD);
 
-  x += 20.0;
+  x += 10.0;
   ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 
   x += 40.0;
-  ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x, 20.0)), groundFD);
+  ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40, 20.0)), groundFD);
 
   // Teeter
   var teeter = world.createDynamicBody(Vec2(140.0, 1.0));
@@ -77,7 +77,7 @@ planck.testbed('Car', function(testbed) {
   bridgeFD.friction = 0.6;
 
   var prevBody = ground;
-  for (var i = 0; i < 20; ++i) {
+  for (var i = 0; i < 40; ++i) {
     var bridgeBlock = world.createDynamicBody(Vec2(161.0 + 2.0 * i, -0.125));
     bridgeBlock.createFixture(pl.Box(1.0, 0.125), bridgeFD);
 
@@ -91,19 +91,19 @@ planck.testbed('Car', function(testbed) {
   // Boxes
   var box = pl.Box(0.5, 0.5);
 
-  world.createDynamicBody(Vec2(230.0, 0.5))
+  world.createDynamicBody(Vec2(270.0, 0.5))
     .createFixture(box, 0.5);
 
-  world.createDynamicBody(Vec2(230.0, 1.5))
+  world.createDynamicBody(Vec2(270.0, 1.5))
     .createFixture(box, 0.5);
 
-  world.createDynamicBody(Vec2(230.0, 2.5))
+  world.createDynamicBody(Vec2(270.0, 2.5))
     .createFixture(box, 0.5);
 
-  world.createDynamicBody(Vec2(230.0, 3.5))
+  world.createDynamicBody(Vec2(270.0, 3.5))
     .createFixture(box, 0.5);
 
-  world.createDynamicBody(Vec2(230.0, 4.5))
+  world.createDynamicBody(Vec2(270.0, 4.5))
     .createFixture(box, 0.5);
 
   // Car
