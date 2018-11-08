@@ -1,5 +1,9 @@
 # Car game in planckjs
 
+The original code by:
+ * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
+ * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
+
 ## How to run
 ```
 git clone git@github.com:KizmetMars/car-in-planckjs.git

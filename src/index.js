@@ -7,13 +7,16 @@ planck.testbed('Car', function(testbed) {
 
   var pl = planck, Vec2 = pl.Vec2;
   var world = new pl.World({
-    gravity : Vec2(0, -10)
+    gravity : Vec2(0, -20)
   });
 
   // wheel spring settings
   var HZ = 4.0;
   var ZETA = 0.7;
-  var SPEED = 50.0;
+  var SPEED = 200.0;
+  var wheelSize = 0.6;
+  // var motorSpeedIncrease = springback.setMotorSpeed();
+  // var motorSpeedDecrease = springback.setMotorSpeed();
 
   var ground = world.createBody();
 
@@ -22,6 +25,7 @@ planck.testbed('Car', function(testbed) {
     friction : 0.6
   };
 
+  // start of the ground
   ground.createFixture(pl.Edge(Vec2(-20.0, 0.0), Vec2(20.0, 0.0)), groundFD);
 
   var hs = [ 0.25, 1.0, 4.0, 0.0, 0.0, -1.0, -2.0, -2.0, -1.25, 0.0 ];
@@ -117,12 +121,15 @@ planck.testbed('Car', function(testbed) {
   wheelFD.density = 1.0;
   wheelFD.friction = 0.9;
 
+  // attach back wheel to body
   var wheelBack = world.createDynamicBody(Vec2(-1.0, 0.35));
-  wheelBack.createFixture(pl.Circle(0.4), wheelFD);
+  wheelBack.createFixture(pl.Circle(wheelSize), wheelFD);
 
+  // attach front wheel to body
   var wheelFront = world.createDynamicBody(Vec2(1.0, 0.4));
-  wheelFront.createFixture(pl.Circle(0.4), wheelFD);
+  wheelFront.createFixture(pl.Circle(wheelSize), wheelFD);
 
+  // front wheel
   var springBack = world.createJoint(pl.WheelJoint({
     motorSpeed : 0.0,
     maxMotorTorque : 20.0,
@@ -131,6 +138,7 @@ planck.testbed('Car', function(testbed) {
     dampingRatio : ZETA
   }, car, wheelBack, wheelBack.getPosition(), Vec2(0.0, 1.0)));
 
+  // back wheel
   var springFront = world.createJoint(pl.WheelJoint({
     motorSpeed : 0.0,
     maxMotorTorque : 10.0,
@@ -139,19 +147,27 @@ planck.testbed('Car', function(testbed) {
     dampingRatio : ZETA
   }, car, wheelFront, wheelFront.getPosition(), Vec2(0.0, 1.0)));
 
+  // wheel spring controls
   testbed.keydown = function() {
     if (testbed.activeKeys.down) {
       HZ = Math.max(0.0, HZ - 1.0);
       springBack.setSpringFrequencyHz(HZ);
       springFront.setSpringFrequencyHz(HZ);
+      console.log("Wheel Spring is: " + HZ);
+      // console.log("Car's speed:", car.velocity)
+      console.log("Car's speed:", car.c_velocity)
 
     } else if (testbed.activeKeys.up) {
       HZ += 1.0;
       springBack.setSpringFrequencyHz(HZ);
       springFront.setSpringFrequencyHz(HZ);
+      console.log("Wheel Spring is: " + HZ);
+      // console.log("Car's speed:", car.velocity)
+      console.log("Car's speed:", car.c_velocity)
     }
   };
 
+  // forwards and back controls
   testbed.step = function() {
     if (testbed.activeKeys.right && testbed.activeKeys.left) {
       springBack.setMotorSpeed(0);
@@ -180,6 +196,14 @@ planck.testbed('Car', function(testbed) {
   };
 
   testbed.info('←/→: Accelerate car, ↑/↓: Change spring frequency');
+
+  // debug menu
+  // gravity
+  // position
+  // spring freq - done
+  // velocity - done
+  // accelertation - done
+
 
   return world;
 });
