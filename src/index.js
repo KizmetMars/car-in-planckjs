@@ -14,7 +14,7 @@ planck.testbed('Car', function(testbed) {
   var HZ = 4.0;
   var ZETA = 0.7;
   var SPEED = 200.0;
-  var wheelSize = 0.6;
+  var wheelSize = 0.8;
   // var motorSpeedIncrease = springback.setMotorSpeed();
   // var motorSpeedDecrease = springback.setMotorSpeed();
 
@@ -58,7 +58,15 @@ planck.testbed('Car', function(testbed) {
   ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 
   x += 40.0;
-  ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40, 20.0)), groundFD);
+  ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 20, 5.0)), groundFD);
+
+  x += 20;
+  for (var i = 0; i < 10; ++i) {
+    var y2 = hs[i];
+    ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
+    y1 = y2;
+    x += dx;
+  }
 
   // Teeter
   var teeter = world.createDynamicBody(Vec2(140.0, 1.0));
@@ -91,20 +99,28 @@ planck.testbed('Car', function(testbed) {
   // Boxes
   var box = pl.Box(0.5, 0.5);
 
-  world.createDynamicBody(Vec2(270.0, 0.5))
-    .createFixture(box, 0.5);
+  var boxHeight = [ 0.5, 1.5, 2.5, 3.5, 4.5];
 
-  world.createDynamicBody(Vec2(270.0, 1.5))
-    .createFixture(box, 0.5);
+  for (var i = 0; i < 5; ++i) {
+    var x1 = boxHeight[i];
+    world.createDynamicBody(Vec2(270, x1))
+      .createFixture(box, 0.5);
+  }
 
-  world.createDynamicBody(Vec2(270.0, 2.5))
-    .createFixture(box, 0.5);
+  // world.createDynamicBody(Vec2(270.0, 0.5))
+  //   .createFixture(box, 0.5);
 
-  world.createDynamicBody(Vec2(270.0, 3.5))
-    .createFixture(box, 0.5);
+  // world.createDynamicBody(Vec2(270.0, 1.5))
+  //   .createFixture(box, 0.5);
 
-  world.createDynamicBody(Vec2(270.0, 4.5))
-    .createFixture(box, 0.5);
+  // world.createDynamicBody(Vec2(270.0, 2.5))
+  //   .createFixture(box, 0.5);
+
+  // world.createDynamicBody(Vec2(270.0, 3.5))
+  //   .createFixture(box, 0.5);
+
+  // world.createDynamicBody(Vec2(270.0, 4.5))
+  //   .createFixture(box, 0.5);
 
   // Car
   var car = world.createDynamicBody(Vec2(0.0, 1.0));
@@ -115,6 +131,16 @@ planck.testbed('Car', function(testbed) {
     Vec2(0.0, 0.9),
     Vec2(-1.15, 0.9),
     Vec2(-1.5, 0.2)
+  ]), 1.0);
+
+  var car1 = world.createDynamicBody(Vec2(-5.0, 1.0));
+  car1.createFixture(pl.Polygon([
+    Vec2(-1.5, -0.5),
+    Vec2(1.5, -0.5),
+    Vec2(1.5, 0.75),
+    Vec2(1.0, 1.5),
+    Vec2(0.0, 1.5),
+    Vec2(-1.5, 0.0)
   ]), 1.0);
 
   var wheelFD = {};
