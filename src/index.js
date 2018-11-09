@@ -32,18 +32,21 @@ planck.testbed('Car', function(testbed) {
 
   var x = 20.0, y1 = 0.0, dx = 5.0;
 
-  for (var i = 0; i < 10; ++i) {
-    var y2 = hs[i];
-    ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
-    y1 = y2;
-    x += dx;
-  }
+  var hills = function() {
+    for (var i = 0; i < 10; ++i) {
+      var y2 = hs[i];
+      ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
+      y1 = y2;
+      x += dx;
+    }
+  };
 
-  for (var i = 0; i < 10; ++i) {
-    var y2 = hs[i];
-    ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
-    y1 = y2;
-    x += dx;
+  var levelCreate = [ 1, 1 ];
+
+  for (var i = 0; i < levelCreate.length; ++i){
+    if (levelCreate[i] = 1){
+      hills();
+    }
   }
 
   ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
@@ -61,12 +64,9 @@ planck.testbed('Car', function(testbed) {
   ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 20, 5.0)), groundFD);
 
   x += 20;
-  for (var i = 0; i < 10; ++i) {
-    var y2 = hs[i];
-    ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
-    y1 = y2;
-    x += dx;
-  }
+
+  hills();
+  hills();
 
   // Teeter
   var teeter = world.createDynamicBody(Vec2(140.0, 1.0));
@@ -97,15 +97,15 @@ planck.testbed('Car', function(testbed) {
   world.createJoint(pl.RevoluteJoint({}, prevBody, ground, Vec2(160.0 + 2.0 * i, -0.125)));
 
   // Boxes
-  var box = pl.Box(0.5, 0.5);
+  // var box = pl.Box(0.5, 0.5);
 
-  var boxHeight = [ 0.5, 1.5, 2.5, 3.5, 4.5];
+  // var boxHeight = [ 0.5, 1.5, 2.5, 3.5, 4.5];
 
-  for (var i = 0; i < 5; ++i) {
-    var x1 = boxHeight[i];
-    world.createDynamicBody(Vec2(270, x1))
-      .createFixture(box, 0.5);
-  }
+  // for (var i = 0; i < boxHeight.length; ++i) {
+  //   // var x1 = boxHeight[i];
+  //   world.createDynamicBody(Vec2(270, boxHeight[i]))
+  //     .createFixture(box, 0.5);
+  // }
 
   // world.createDynamicBody(Vec2(270.0, 0.5))
   //   .createFixture(box, 0.5);
@@ -158,7 +158,7 @@ planck.testbed('Car', function(testbed) {
   // front wheel
   var springBack = world.createJoint(pl.WheelJoint({
     motorSpeed : 0.0,
-    maxMotorTorque : 20.0,
+    maxMotorTorque : 40.0,
     enableMotor : true,
     frequencyHz : HZ,
     dampingRatio : ZETA
@@ -180,6 +180,7 @@ planck.testbed('Car', function(testbed) {
       springBack.setSpringFrequencyHz(HZ);
       springFront.setSpringFrequencyHz(HZ);
       console.log("Wheel Spring is: " + HZ);
+      car.angle = 0.0 * Math.PI / 180.0
       // console.log("Car's speed:", car.velocity)
       console.log("Car's speed:", car.c_velocity)
 
@@ -192,6 +193,14 @@ planck.testbed('Car', function(testbed) {
       console.log("Car's speed:", car.c_velocity)
     }
   };
+
+  // var carAngle = car.angle;
+
+  //   testbed.keydown = function() {
+  //     if (testbed.activeKeys.down) {
+  //       carAngle = 0.25 * Math.PI / 180.0
+  //     }
+  //   };
 
   // forwards and back controls
   testbed.step = function() {
