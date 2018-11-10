@@ -41,32 +41,25 @@ planck.testbed('Car', function(testbed) {
     }
   };
 
-  var levelCreate = [ 1, 1 ];
+  var spawnArea = function () {
+    ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
+  };
 
-  for (var i = 0; i < levelCreate.length; ++i){
-    if (levelCreate[i] = 1){
-      hills();
-    }
-  }
+  var flatGround = function () {
+    x += 120.0;
+    ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 
-  ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
+    x += 40.0;
+    ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 10.0, 5.0)), groundFD);
 
-  x += 120.0;
-  ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
+    x += 10.0;
+    ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 
-  x += 40.0;
-  ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 10.0, 5.0)), groundFD);
+    x += 40.0;
+    ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 20, 5.0)), groundFD);
 
-  x += 10.0;
-  ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
-
-  x += 40.0;
-  ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 20, 5.0)), groundFD);
-
-  x += 20;
-
-  hills();
-  hills();
+    x += 20;
+  };
 
   // Teeter
   var teeter = world.createDynamicBody(Vec2(140.0, 1.0));
@@ -85,42 +78,52 @@ planck.testbed('Car', function(testbed) {
   bridgeFD.friction = 0.6;
 
   var prevBody = ground;
-  for (var i = 0; i < 40; ++i) {
-    var bridgeBlock = world.createDynamicBody(Vec2(161.0 + 2.0 * i, -0.125));
-    bridgeBlock.createFixture(pl.Box(1.0, 0.125), bridgeFD);
 
-    world.createJoint(pl.RevoluteJoint({}, prevBody, bridgeBlock, Vec2(160.0 + 2.0 * i, -0.125)));
+  var bridge = function () {
+    for (var i = 0; i < 40; ++i) {
+      var bridgeBlock = world.createDynamicBody(Vec2(161.0 + 2.0 * i, -0.125));
+      bridgeBlock.createFixture(pl.Box(1.0, 0.125), bridgeFD);
 
-    prevBody = bridgeBlock;
-  }
+      world.createJoint(pl.RevoluteJoint({}, prevBody, bridgeBlock, Vec2(160.0 + 2.0 * i, -0.125)));
+
+      prevBody = bridgeBlock;
+    }
+  };
 
   world.createJoint(pl.RevoluteJoint({}, prevBody, ground, Vec2(160.0 + 2.0 * i, -0.125)));
 
   // Boxes
-  // var box = pl.Box(0.5, 0.5);
+  var box = pl.Box(0.5, 0.5);
 
-  // var boxHeight = [ 0.5, 1.5, 2.5, 3.5, 4.5];
+  var boxHeight = [ 0.5, 1.5, 2.5, 3.5, 4.5];
 
-  // for (var i = 0; i < boxHeight.length; ++i) {
-  //   // var x1 = boxHeight[i];
-  //   world.createDynamicBody(Vec2(270, boxHeight[i]))
-  //     .createFixture(box, 0.5);
-  // }
+  var boxes = function () {
+    for (var i = 0; i < boxHeight.length; ++i) {
+      // var x1 = boxHeight[i];
+      world.createDynamicBody(Vec2(270, boxHeight[i]))
+        .createFixture(box, 0.5);
+    }
+  };
 
-  // world.createDynamicBody(Vec2(270.0, 0.5))
-  //   .createFixture(box, 0.5);
+  // create the level here
 
-  // world.createDynamicBody(Vec2(270.0, 1.5))
-  //   .createFixture(box, 0.5);
+  // the numbers represent the order of the level items
+  var levelCreate = [ 0, 1, 1, 3, 2, 1, 1 ];
 
-  // world.createDynamicBody(Vec2(270.0, 2.5))
-  //   .createFixture(box, 0.5);
-
-  // world.createDynamicBody(Vec2(270.0, 3.5))
-  //   .createFixture(box, 0.5);
-
-  // world.createDynamicBody(Vec2(270.0, 4.5))
-  //   .createFixture(box, 0.5);
+  for (var i = 0; i < levelCreate.length; ++i){
+    if (levelCreate[i] = 0){
+      spawnArea();
+    }
+    else if (levelCreate[i] = 1){
+      hills();
+    }
+    else if (levelCreate[i] = 2){
+      flatGround();
+    }
+    else if (levelCreate[i] = 3){
+      bridge();
+    }
+  };
 
   // Car
   var car = world.createDynamicBody(Vec2(0.0, 1.0));
