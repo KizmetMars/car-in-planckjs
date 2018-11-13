@@ -15,24 +15,27 @@ planck.testbed('Car', function(testbed) {
   var ZETA = 0.7;
   var SPEED = 200.0;
   var wheelSize = 0.8;
-  // var motorSpeedIncrease = springback.setMotorSpeed();
-  // var motorSpeedDecrease = springback.setMotorSpeed();
 
+  // level code
   var ground = world.createBody();
+  var x = 0;
 
   var groundFD = {
     density : 0.0,
     friction : 0.6
   };
 
-  // start of the ground
-  ground.createFixture(pl.Edge(Vec2(-20.0, 0.0), Vec2(20.0, 0.0)), groundFD);
+  var spawnArea = function() {
+    ground.createFixture(pl.Edge(Vec2(-20.0, 0.0), Vec2(20.0, 0.0)), groundFD);
+    x += 20;
+  };
 
-  var hs = [ 0.25, 1.0, 4.0, 0.0, 0.0, -1.0, -2.0, -2.0, -1.25, 0.0 ];
-
-  var x = 20.0, y1 = 0.0, dx = 5.0;
-
+  // hills code
   var hills = function() {
+    var hs = [ 0.25, 1.0, 4.0, 0.0, 0.0, -1.0, -2.0, -2.0, -1.25, 0.0 ];
+
+    var y1 = 0.0, dx = 5.0;
+
     for (var i = 0; i < 10; ++i) {
       var y2 = hs[i];
       ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
@@ -41,56 +44,79 @@ planck.testbed('Car', function(testbed) {
     }
   };
 
-  var spawnArea = function () {
-    ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
+  // jump
+  var jump = function() {
+    var hs = [ 0.0, 0.25, 2.0, 5.0, 1.0, 0.0, 0.0, 1.0, 2.0, 0.0 ];
+    
+    var y1 = 0.0, dx = 5.0;
+
+    for (var i = 0; i < hs.length; ++i) {
+      var y2 = hs[i];
+      ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
+      y1 = y2;
+      x += dx;
+    }
   };
 
   var flatGround = function () {
-    x += 120.0;
     ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
-
     x += 40.0;
+
     ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 10.0, 5.0)), groundFD);
-
     x += 10.0;
-    ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 
+    ground.createFixture(pl.Edge(Vec2(x, 5.0), Vec2(x + 40.0, 2.0)), groundFD);
     x += 40.0;
-    ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 20, 5.0)), groundFD);
 
+    ground.createFixture(pl.Edge(Vec2(x, 2.0), Vec2(x + 20, 0.0)), groundFD);
     x += 20;
   };
 
   // Teeter
-  var teeter = world.createDynamicBody(Vec2(140.0, 1.0));
-  teeter.createFixture(pl.Box(10.0, 0.25), 1.0);
-  world.createJoint(pl.RevoluteJoint({
-    lowerAngle : -8.0 * Math.PI / 180.0,
-    upperAngle : 8.0 * Math.PI / 180.0,
-    enableLimit : true
-  }, ground, teeter, teeter.getPosition()));
+  var teeterSection = function () {
+    ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 40.0, 0.0)), groundFD);
 
-  teeter.applyAngularImpulse(100.0, true);
+    var teeter = world.createDynamicBody(Vec2(x + 20, 1.0));
+    teeter.createFixture(pl.Box(10.0, 0.25), 1.0);
+    world.createJoint(pl.RevoluteJoint({
+      lowerAngle : -8.0 * Math.PI / 180.0,
+      upperAngle : 8.0 * Math.PI / 180.0,
+      enableLimit : true
+    }, ground, teeter, teeter.getPosition()));
+  
+    teeter.applyAngularImpulse(100.0, true);
 
-  // Bridge
-  var bridgeFD = {};
-  bridgeFD.density = 1.0;
-  bridgeFD.friction = 0.6;
-
-  var prevBody = ground;
-
-  var bridge = function () {
-    for (var i = 0; i < 40; ++i) {
-      var bridgeBlock = world.createDynamicBody(Vec2(161.0 + 2.0 * i, -0.125));
-      bridgeBlock.createFixture(pl.Box(1.0, 0.125), bridgeFD);
-
-      world.createJoint(pl.RevoluteJoint({}, prevBody, bridgeBlock, Vec2(160.0 + 2.0 * i, -0.125)));
-
-      prevBody = bridgeBlock;
-    }
+    x += 40;
   };
 
-  world.createJoint(pl.RevoluteJoint({}, prevBody, ground, Vec2(160.0 + 2.0 * i, -0.125)));
+  // Bridge
+  var bridge = function () {
+    var bridgeFD = {};
+    bridgeFD.density = 1.0;
+    bridgeFD.friction = 0.6;
+  
+    var prevBody = ground;
+
+    ground.createFixture(pl.Edge(Vec2(x, 0.0), Vec2(x + 10.0, 0.0)), groundFD);
+    x += 11;
+    
+    for (var i = 0; i < 20; ++i) {
+      var bridgeBlock = world.createDynamicBody(Vec2(x + 2.0 * i, -0.125));
+      bridgeBlock.createFixture(pl.Box(1.0, 0.125), bridgeFD);
+
+      world.createJoint(pl.RevoluteJoint({}, prevBody, bridgeBlock, Vec2(x + 2.0 * i, -0.125)));
+
+      prevBody = bridgeBlock;
+      
+    }
+
+    world.createJoint(pl.RevoluteJoint({}, prevBody, ground, Vec2(x + 2.0 * i, 0.0)));
+    x += 39;
+
+    ground.createFixture(pl.Edge(Vec2(x, -0.5), Vec2(x + 10.0, 0.0)), groundFD);
+    x += 10;
+  };
+
 
   // Boxes
   var box = pl.Box(0.5, 0.5);
@@ -99,7 +125,6 @@ planck.testbed('Car', function(testbed) {
 
   var boxes = function () {
     for (var i = 0; i < boxHeight.length; ++i) {
-      // var x1 = boxHeight[i];
       world.createDynamicBody(Vec2(270, boxHeight[i]))
         .createFixture(box, 0.5);
     }
@@ -107,23 +132,39 @@ planck.testbed('Car', function(testbed) {
 
   // create the level here
 
-  // the numbers represent the order of the level items
-  var levelCreate = [ 0, 1, 1, 3, 2, 1, 1 ];
+  // the numbers represent the order of the level ite, 4, 1, 2 ];
 
-  for (var i = 0; i < levelCreate.length; ++i){
-    if (levelCreate[i] = 0){
-      spawnArea();
-    }
-    else if (levelCreate[i] = 1){
-      hills();
-    }
-    else if (levelCreate[i] = 2){
-      flatGround();
-    }
-    else if (levelCreate[i] = 3){
-      bridge();
-    }
-  };
+  // var input = [ 0, 1, 3, 1, 3, 3, 4, 2, 1, 4, 4, 1, 4, 1, 2 ];
+
+  // var refernceLevelData = {
+  //   0: spawnArea,
+  //   1: hills,
+  //   2: bridge,
+  // };
+
+  var levelDefinition = [spawnArea, hills, hills, jump, jump, jump, hills, teeterSection, flatGround, hills, jump, jump];
+  levelDefinition.forEach(level => level());
+
+  // for (var i = 0; i < levelCreate.length; i++){
+  //   if (levelCreate[i] === 0){
+  //     spawnArea();
+  //   }
+  //   else if (levelCreate[i] === 1){
+  //     hills();
+  //   }
+  //   else if (levelCreate[i] === 2){
+  //     flatGround();
+  //   }
+  //   else if (levelCreate[i] === 3){
+  //     bridge();
+  //   }
+  //   else if (levelCreate[i] === 4){
+  //     teeterSection();
+  //   }
+  //   else if (levelCreate[i] === 5){
+  //     boxes();
+  //   }
+  // };
 
   // Car
   var car = world.createDynamicBody(Vec2(0.0, 1.0));
