@@ -13,7 +13,7 @@ planck.testbed('Car', function(testbed) {
   // wheel spring settings
   var HZ = 4.0;
   var ZETA = 0.7;
-  var SPEED = 200.0;
+  var SPEED = 100.0;
   var wheelSize = 0.8;
 
   // level code
@@ -30,8 +30,7 @@ planck.testbed('Car', function(testbed) {
     x += 20;
   };
 
-  // hills code
-  var hills = function() {
+  var jump = function() {
     var hs = [ 0.25, 1.0, 4.0, 0.0, 0.0, -1.0, -2.0, -2.0, -1.25, 0.0 ];
 
     var y1 = 0.0, dx = 5.0;
@@ -44,11 +43,21 @@ planck.testbed('Car', function(testbed) {
     }
   };
 
-  // jump
-  var jump = function() {
+  var hills = function() {
     var hs = [ 0.0, 0.25, 2.0, 5.0, 1.0, 0.0, 0.0, 1.0, 2.0, 0.0 ];
-    
     var y1 = 0.0, dx = 5.0;
+
+    for (var i = 0; i < hs.length; ++i) {
+      var y2 = hs[i];
+      ground.createFixture(pl.Edge(Vec2(x, y1), Vec2(x + dx, y2)), groundFD);
+      y1 = y2;
+      x += dx;
+    }
+  };
+
+  var sloap = function() {
+    var hs = [ 0.0, 1.0, 1.0, 0.0 ];
+    var y1 = 0.0, dx = 20.0;
 
     for (var i = 0; i < hs.length; ++i) {
       var y2 = hs[i];
@@ -131,40 +140,20 @@ planck.testbed('Car', function(testbed) {
   };
 
   // create the level here
-
   // the numbers represent the order of the level ite, 4, 1, 2 ];
 
-  // var input = [ 0, 1, 3, 1, 3, 3, 4, 2, 1, 4, 4, 1, 4, 1, 2 ];
+  var level0 = [ 0, 1 ];
+  var level1 = [ 1, 3 ];
 
-  // var refernceLevelData = {
-  //   0: spawnArea,
-  //   1: hills,
-  //   2: bridge,
-  // };
-
-  var levelDefinition = [spawnArea, hills, hills, jump, jump, jump, hills, teeterSection, flatGround, hills, jump, jump];
-  levelDefinition.forEach(level => level());
-
-  // for (var i = 0; i < levelCreate.length; i++){
-  //   if (levelCreate[i] === 0){
-  //     spawnArea();
-  //   }
-  //   else if (levelCreate[i] === 1){
-  //     hills();
-  //   }
-  //   else if (levelCreate[i] === 2){
-  //     flatGround();
-  //   }
-  //   else if (levelCreate[i] === 3){
-  //     bridge();
-  //   }
-  //   else if (levelCreate[i] === 4){
-  //     teeterSection();
-  //   }
-  //   else if (levelCreate[i] === 5){
-  //     boxes();
-  //   }
-  // };
+  var refernceLevelData = {
+    0: spawnArea,
+    1: hills,
+    2: flatGround,
+    3: jump,
+    4: teeterSection,
+    5: bridge
+  };
+  level0.forEach(step => refernceLevelData[step]());
 
   // Car
   var car = world.createDynamicBody(Vec2(0.0, 1.0));
@@ -211,11 +200,15 @@ planck.testbed('Car', function(testbed) {
   // back wheel
   var springFront = world.createJoint(pl.WheelJoint({
     motorSpeed : 0.0,
-    maxMotorTorque : 10.0,
+    maxMotorTorque : 20.0,
     enableMotor : false,
     frequencyHz : HZ,
     dampingRatio : ZETA
   }, car, wheelFront, wheelFront.getPosition(), Vec2(0.0, 1.0)));
+
+
+  var carPosition = car.getPosition();
+  var carAngle = car.getAngle();
 
   // wheel spring controls
   testbed.keydown = function() {
@@ -224,27 +217,22 @@ planck.testbed('Car', function(testbed) {
       springBack.setSpringFrequencyHz(HZ);
       springFront.setSpringFrequencyHz(HZ);
       console.log("Wheel Spring is: " + HZ);
-      car.angle = 0.0 * Math.PI / 180.0
-      // console.log("Car's speed:", car.velocity)
-      console.log("Car's speed:", car.c_velocity)
+      // car.angle = 0.0 * Math.PI / 180.0 // flip car - doesn't work
+      console.log("Car's speed:", car.c_velocity);
 
     } else if (testbed.activeKeys.up) {
       HZ += 1.0;
       springBack.setSpringFrequencyHz(HZ);
       springFront.setSpringFrequencyHz(HZ);
       console.log("Wheel Spring is: " + HZ);
-      // console.log("Car's speed:", car.velocity)
-      console.log("Car's speed:", car.c_velocity)
+      console.log("Car's speed:", car.c_velocity);
+      console.log("Car Angle: " + car.getAngle());
+      console.log("Car X position: " + carPosition.x);
+      console.log("Level length is: " + x);
+      // car.setAngle = 0.0; // flip car??
+
     }
   };
-
-  // var carAngle = car.angle;
-
-  //   testbed.keydown = function() {
-  //     if (testbed.activeKeys.down) {
-  //       carAngle = 0.25 * Math.PI / 180.0
-  //     }
-  //   };
 
   // forwards and back controls
   testbed.step = function() {
@@ -265,14 +253,19 @@ planck.testbed('Car', function(testbed) {
       springBack.enableMotor(false);
     }
 
-    var cp = car.getPosition();
-    if (cp.x > testbed.x + 10) {
-      testbed.x = cp.x - 10;
+    // camera control
+    if (carPosition.x > testbed.x + 10) {
+      testbed.x = carPosition.x - 10;
 
-    } else if (cp.x < testbed.x - 10) {
-      testbed.x = cp.x + 10;
-    }
+    } else if (carPosition.x < testbed.x - 10) {
+      testbed.x = carPosition.x + 10;
+
+    } else if (carPosition.x > x - 80){
+      level1.forEach(step => refernceLevelData[step]());
+    };
   };
+
+
 
   testbed.info('←/→: Accelerate car, ↑/↓: Change spring frequency');
 
@@ -282,6 +275,7 @@ planck.testbed('Car', function(testbed) {
   // spring freq - done
   // velocity - done
   // accelertation - done
+  console.log("The levels lenght is: " + x);
 
 
   return world;
